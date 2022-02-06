@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
@@ -25,7 +25,16 @@ module.exports = {
         //console.log(index);
         const memeEmbed = new MessageEmbed().setImage(memes[index]);
 
-        interaction.reply({embeds: [memeEmbed]});
+        //button that will change the meme
+        const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('newMeme')
+					.setLabel('New Meme')
+					.setStyle('PRIMARY'),
+			);
+
+        interaction.reply({embeds: [memeEmbed], components: [row]});
 	},
 };
 
