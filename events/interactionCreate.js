@@ -1,5 +1,5 @@
 const config = require("../config.json");
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, Message } = require('discord.js');
 
 
 module.exports = {
@@ -13,13 +13,53 @@ module.exports = {
             //if the interaction is part of tictactoe
             if(interaction.customId.includes("cell")){
                 //get the clicked cell number
-                clickedCellNumber = interaction.customId.substring(interaction.customId.length-1);
+                var clickedCellNumber = interaction.customId.substring(interaction.customId.length-1);
+                var clickedRowNumber = Math.floor(clickedCellNumber/3);
                 //get the MessageButton that was clicked
-                clickedButton = interaction.message.components[Math.floor(clickedCellNumber/3)].components[clickedCellNumber%3];
+                var clickedButton = interaction.message.components[Math.floor(clickedCellNumber/3)].components[clickedCellNumber%3];
+                //get the row of the button that was clicked
+                var changedRow = interaction.message.components[Math.floor(clickedCellNumber/3)];
+               
+                var lengthOfLabel = interaction.message.embeds[0].title.length;
+
+                //get the value of the current player (X or O)
+                var currentPlayer = interaction.message.embeds[0].title.substring(lengthOfLabel - 1);
+
                 //change the text of the button to the current player's symbol
-                clickedButton.label = "X";
+                clickedButton.label = currentPlayer;
+
+                //change the current player
+                if(currentPlayer == "X"){
+                    currentPlayer = "O";
+                }else{
+                    currentPlayer = "X";
+                }
+
+                //alter the content of the new interaction based on the
+                //  value of the new player
+                var newLabel = "Turn: " + currentPlayer;
+
+                //create new board to house the new row
+                var rows = [];
+
+                //iterate through the rows and update the one that has been clicked on
+                for(var i = 0; i < 3; i++){
+                    //get the current row
+                    var row = interaction.message.components[i];
+                    //if the row isn't changed, don't update it
+                    if (i != clickedRowNumber){
+                        //add the original row 
+                        rows.push(row);
+                    }else{
+                        //add the changed row
+                        rows.push(changedRow);
+                    }
+                }
+
+                //update the interaction with the changed values
+                interaction.update({embeds: [new MessageEmbed().setTitle(newLabel)], components: [rows[0], rows[1], rows[2]]})
                 
-                console.log(clickedButton);
+               // console.log(clickedButton);
             }
             /*
             interaction.reply("You clicked " + interaction.customId);
